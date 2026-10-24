@@ -190,7 +190,7 @@ body.sketchmode, body.sketchmode * { user-select: none !important; -webkit-user-
 .tree-sizer { position: relative; } .tree .mvRing { position: absolute; pointer-events: none; border-radius: 18%; box-sizing: border-box; } .tree .mvRing.to { border: calc(var(--lw) * 2.4) solid #fff; background: rgba(255,255,255,.18); } .tree .mvRing.from { border: calc(var(--lw) * 1.6) dashed rgba(255,255,255,.75); } .tree .moving { pointer-events: none !important; } .tree .tsq.moving { z-index: 5; } /* hold and drag a house (Bell v260) */ .nText { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; z-index: 2; } .nText > div { position: absolute; display: flex; align-items: center; justify-content: center; text-align: center; } .nText .t { max-width: 100%; } .tree .t.ntx, .tree .tsq.nhx > .hol, .tree .tsq.nhx > .hfill { visibility: hidden; } /* names zoomed in: drawn again at screen size, sharp (Bell v253) */
 /* canvas mode is the house's parcel as it is, with the edit buttons added: no black, no zoom (Bell v215) */
 #stage.hfoc .tree > .art .walls { display: none; } /* the walls' outline lies over the house: gone in canvas mode (Bell saw a line at the attic) */
-#stage.hfoc .tree .tsq .t.untitled { visibility: hidden; } /* canvas mode: no plus inside the empty house (Bell) */ /* a house fills the screen: everything round it is black (its own rule shows it) */
+#stage.hfoc .tree .tsq .t.untitled, #hText .t.untitled { visibility: hidden; } /* canvas mode: no plus inside the empty house (Bell) */ /* a house fills the screen: everything round it is black (its own rule shows it) */
 .tree { position: absolute; transform-origin: 0 0; }
 .tree .art { position: absolute; left: 0; top: 0; }
 /* Line weights follow the zoom: they thin out as you zoom in, so an island seen up close keeps fine lines (set in applyZoom) */
@@ -1820,11 +1820,10 @@ function fitHouse(tl, instant) {
 let isleNew = null;
 function newIsland() {
   checkpoint();
-  const id = uid(); db.n[id] = blank(''); setKid(ROOT, firstFree(db.ideas), id);
-  isleNew = id; houseOpen = null; treeFitWidth = true; render();
+  const id = uid(); db.n[id] = blank(''); db.n[id].keep = 1; setKid(ROOT, firstFree(db.ideas), id); save();
+  houseOpen = null; treeFitWidth = true; render();
   const el = stage.querySelector(`.tsq[data-path="${id}"]`); if (!el) return;
-  isleFocus = id; syncCollapse(); fitHouse(el, true); houseFocus = id; syncHouseTools();
-  openPad(id, stage.querySelector(`.tsq[data-path="${id}"]`), true);
+  isleFocus = id; syncCollapse(); fitHouse(el, true); houseFocus = id; syncHouseTools(); // the same canvas buttons as every other house: type, sketch, colour (Bell v275)
 }
 // The plus in the footer: a new, empty island straight on the map (its house is filled later)
 function addIsland() {
