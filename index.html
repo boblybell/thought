@@ -1508,12 +1508,24 @@ function sketchURL(n, W, H, half) {
   return c.toDataURL('image/png');
 }
 const focusEl = (svg, F) => F.includes(' ') ? svg.querySelector(`path.parcel[data-ppath="${CSS.escape(F)}"]`) : svg.querySelector(`g[data-isle="${CSS.escape(F)}"] path.sand`);
-let focusArtKey = null, focusArtUrl = null;
+let focusArtKey = null, focusArtUrl = null; const isleArt = new Map();
 function syncFocusArt() {
   const svg = nav.view === 'tree' && stage.querySelector('.tree svg.art'); if (!svg) return;
-  const old = svg.querySelector('g.fart'); if (old) old.remove(); document.body.classList.remove('skon');
+  svg.querySelectorAll('g.fart').forEach(o => o.remove()); document.body.classList.remove('skon');
   const sc = document.getElementById('skCss') || document.head.appendChild(Object.assign(document.createElement('style'), { id: 'skCss' })); sc.textContent = '';
-  const F = parcelFocus || isleFocus, el = F && focusEl(svg, F); if (!el) return;
+  const F = parcelFocus || isleFocus;
+  if (!F) { // zoomed out: every island shows its own sketch on its land, behind its parcels (Bell v285)
+    let any = false;
+    ideasNow().forEach((id, i) => { const n = db.n[id], el = focusEl(svg, id); if (!el || !(n.ink && n.ink.length)) return;
+      const b = el.getBBox(), key = [b.width.toFixed(1), b.height.toFixed(1), !!n.sp, n.ink.length, JSON.stringify(n.ink).length].join('|'), c = isleArt.get(id);
+      const url = c && c.key === key ? c.url : sketchURL(n, b.width, b.height, !!n.sp); isleArt.set(id, { key, url });
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('class', 'fart');
+      g.innerHTML = `<clipPath id="fclip${i}"><path d="${el.getAttribute('d')}"/></clipPath><image href="${url}" x="${b.x}" y="${b.y}" width="${b.width}" height="${b.height}" preserveAspectRatio="none" clip-path="url(#fclip${i})"/>`;
+      const at = svg.querySelector(`g[data-isle="${CSS.escape(id)}"] path.farm`); if (at) at.after(g); else svg.appendChild(g); any = true; });
+    if (any) { document.body.classList.add('skon'); sc.textContent = `.tree path.parcel { fill-opacity: .72; }`; }
+    return;
+  }
+  const el = focusEl(svg, F); if (!el) return;
   const n = db.n[F.split(' ').pop()], d = el.getAttribute('d'), NS = 'http://www.w3.org/2000/svg';
   const g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'fart');
   if (n && n.ink && n.ink.length) {
@@ -1524,9 +1536,7 @@ function syncFocusArt() {
     g.dataset.under = 1;
     g.innerHTML = `<clipPath id="fclip"><path d="${d}"/></clipPath><image href="${focusArtUrl}" x="${b.x}" y="${b.y}" width="${b.width}" height="${b.height}" preserveAspectRatio="none" clip-path="url(#fclip)"/>`;
   } else {
-    if (F.includes(' ')) return; // parcels show no pattern of the app's for now (Bell v272; the half-drop of a sketch stays)
-    const fe = F.includes(' ') ? svg.querySelector(`path.farm[data-fpath="${CSS.escape(F)}"]`) : svg.querySelector(`g[data-isle="${CSS.escape(F)}"] path.farm`);
-    if (!fe) return; const c = fe.cloneNode(true); c.removeAttribute('data-fpath'); g.appendChild(c);
+    return; // no app patterns anywhere for now, islands too (Bell v282/v285; a sketch and its half-drop stay)
   }
   if (g.dataset.under) { const at = F.includes(' ') ? svg.querySelector(`path.farm[data-fpath="${CSS.escape(F)}"]`) : svg.querySelector(`g[data-isle="${CSS.escape(F)}"] path.farm`); if (at) { at.after(g); return; } }
   svg.appendChild(g);
