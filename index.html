@@ -1717,7 +1717,7 @@ function syncHText() {
   ob.hidden = !box; if (box) { at(ob, box.getBoundingClientRect()); const src = box.querySelector('.t');
     if (!o.contains(document.activeElement)) { t.textContent = src ? src.textContent : ''; t.className = src ? src.className : 't'; }
     fit(t); }
-  el.classList.add('htext');
+  if (!el.classList.contains('htext')) { el.classList.add('htext'); if (stage.querySelector('.nText')) syncNText(); } // the map's sharp copy of this name goes, or it shows twice under the one being typed (Bell v286)
 }
 // Zoomed in, the map is scaled up as a picture and its small names go blurry on a phone:
 // once the zoom settles, the names in view are drawn again on top at screen size (Bell v253)
