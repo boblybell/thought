@@ -1037,7 +1037,8 @@ function renderTree(undoHtml) {
       const rh = rows.map(row => Math.max(...row.map(c => c.h)) + 2 * F);
       const w = Math.max(...rw), lines = []; // (no name under the parcel: the house itself shows it) // a square split into parcels keeps its name under them (the island's own name is drawn by the island)
       const lot = lines.length ? lines.length * LH + 7 : 0, h = rh.reduce((x, y) => x + y, 0) + G * (rows.length - 1) + lot;
-      return { w, h, path, draw(x, y) {
+      const rects = []; { let yy = 0; rows.forEach((row, i) => { let xx = (w - rw[i]) / 2; row.forEach(c => { const pw = c.w + 2 * F; if (!c.self) rects.push([xx, yy + (rh[i] - c.h) / 2 - F, pw, c.h + 2 * F]); xx += pw + G; }); yy += rh[i] + G; }); } // the lots, so the shore can be kept outside every corner
+      return { w, h, path, rects, draw(x, y) {
         if (lot) signs.push({ x: x + w / 2, y: y + h - lot + 14, lines, path, lot: 1 });
         rows.forEach((row, i) => {
           let xx = x + (w - rw[i]) / 2;
@@ -1091,7 +1092,9 @@ function renderTree(undoHtml) {
     const items = ideas.map(id => {
       keepOpen = layers === layerOf(id); // an open house stays a house only at the level on show (sizes come from every level)
       const l = lay(id, ROOT, [id], layers), named = false, NB = named ? 30 : 0, hw = l.w / 2, hh = (l.h + NB) / 2;
-      const lone = Math.abs(l.w - HW) < .5, a = lone ? hw / .8 + M : hw / .87 + M * .45, b = lone ? hh / .8 + M : hh / .87 + M * .45; // a one-house island keeps its old shore; land with lots gets a closer one (Bell v186-187) // (closer shore, Bell v186) the land's corners always sit inside the shore, with the same margin at every level
+      // the shore is a rounded square ((x/a)^4 + (y/b)^4 = 1, wobbling in by up to 6%): grown big enough that no lot's corner pokes out (Bell v288)
+      let sc = 1 / .87; (l.rects || []).forEach(([x, y, w, h]) => { const r = Math.min(w, h) * .08; for (const [px, py] of [[x + r, y + r], [x + w - r, y + r], [x + r, y + h - r], [x + w - r, y + h - r]]) { const u = Math.abs(px - l.w / 2) / hw, v = Math.abs(py - l.h / 2) / hh; sc = Math.max(sc, Math.pow(u ** 4 + v ** 4, .25) / .93); } });
+      const lone = Math.abs(l.w - HW) < .5, a = lone ? hw / .8 + M : hw * sc + M * .45, b = lone ? hh / .8 + M : hh * sc + M * .45; // a one-house island keeps its old shore; land with lots gets a closer one (Bell v186-187) // (closer shore, Bell v186) the land's corners always sit inside the shore, with the same margin at every level
       return { id, l, named, NB, hw, hh, a, b, ew: a * 1.04 + 4, eh: b * 1.04 + 4, seed: seedOf(id) };
     });
     return { items };
