@@ -154,7 +154,7 @@ body.dragging .upzone { display: flex; }
   display: block; max-width: 100%; min-width: 1ch; min-height: 1em; font-family: var(--tile-font); font-weight: 500; line-height: 1.08;
   letter-spacing: -.01em; overflow-wrap: normal; word-break: normal; outline: none; color: inherit;
 }
-.t.tight { overflow-wrap: anywhere; }
+.t.tight { overflow-wrap: normal; } /* a word is never split across lines (Bell v287) */
 .t.untitled { opacity: .6; }
 .tree .t.untitled { font-weight: 300; }
 .t[contenteditable] { cursor: text; user-select: text; -webkit-user-select: text; caret-color: currentColor; }
@@ -1395,14 +1395,14 @@ function paintSlot(el) {
 /* Big text that fills the card: binary-search the largest size that fits. */
 function fit(t) {
   const box = t.parentElement, W = box.clientWidth, H = box.clientHeight;
-  if (!W || !H || t.hidden) return;
+  if (!W || !H || t.hidden) return; // (the longest word fits its line with a little room to spare, so the iPhone's slightly wider letters never push part of a word onto the next line, Bell v287)
   t.classList.remove('tight'); t.style.position = t.style.top = '';
   if (!t.textContent.trim()) { t.style.fontSize = Math.min(H * .4, 48) + 'px'; return; }
   const tryH = HH => { let lo = 3, hi = Math.min(HH * .92, W, 220), best = lo; // (small houses deep down have small names)
     for (let k = 0; k < 10; k++) {
       const mid = (lo + hi) / 2;
       t.style.fontSize = mid + 'px';
-      if (t.scrollWidth <= W + .5 && t.offsetHeight <= HH + .5) { best = mid; lo = mid; } else hi = mid;
+      if (t.scrollWidth <= W * .96 && t.offsetHeight <= HH + .5) { best = mid; lo = mid; } else hi = mid;
     }
     return best; };
   let best = tryH(H);
