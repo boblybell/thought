@@ -1,5 +1,5 @@
 // Offline support: app files cache-first, fonts cached the first time they load.
-const CACHE = 'thoughts-2026-10-27c';
+const CACHE = 'thoughts-2026-10-28a';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

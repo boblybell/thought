@@ -1401,11 +1401,13 @@ function fit(t) {
   if (!W || !H || t.hidden) return; // (the longest word fits its line with a little room to spare, so the iPhone's slightly wider letters never push part of a word onto the next line, Bell v287)
   t.classList.remove('tight'); t.style.position = t.style.top = '';
   if (!t.textContent.trim()) { t.style.fontSize = Math.min(H * .4, 48) + 'px'; return; }
+  const cs = getComputedStyle(t), words = t.textContent.split(/\s+/).filter(Boolean);
+  inkCtx.font = `${cs.fontStyle} ${cs.fontWeight} 100px ${cs.fontFamily}`; const wide = Math.max(...words.map(w => inkCtx.measureText(w).width)) / 100; // the longest word's width at 1px
   const tryH = HH => { let lo = 3, hi = Math.min(HH * .92, W, 220), best = lo; // (small houses deep down have small names)
     for (let k = 0; k < 10; k++) {
       const mid = (lo + hi) / 2;
       t.style.fontSize = mid + 'px';
-      if (t.scrollWidth <= W * .96 && t.offsetHeight <= HH + .5) { best = mid; lo = mid; } else hi = mid;
+      if (t.scrollWidth <= W + .5 && wide * mid <= W * .94 && t.offsetHeight <= HH + .5) { best = mid; lo = mid; } else hi = mid; // (names wrap between words; the longest word keeps a little room, Bell v287/v289)
     }
     return best; };
   let best = tryH(H);
