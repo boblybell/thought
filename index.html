@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Thoughts">
+<meta name="apple-mobile-web-app-title" content="Island">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#E9ECE6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#14161B" media="(prefers-color-scheme: dark)">
@@ -13,7 +13,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
-<title>Thoughts</title>
+<title>Island</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree&family=Newsreader:opsz@6..72&family=Jost:wght@400;500&display=swap">
@@ -625,17 +625,17 @@ function undo(quiet) {
 // Backup (v273): the whole map as one file, to keep in Files; restore reads it back
 const unshift = () => { window.scrollTo(0, 0); document.documentElement.scrollLeft = document.body.scrollLeft = 0; }; // the page never stays moved after the share sheet
 $('#bkSave').onclick = async () => { saveNow(); setTimeout(unshift, 400);
-  const d = new Date(), name = `thoughts-backup-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.json`;
+  const d = new Date(), name = `island-backup-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.json`;
   const file = new File([JSON.stringify(db)], name, { type: 'application/json' });
   if (window.claude && window.claude.use) { try { const dl = await claude.use('downloads'); if (dl) { await dl.save({ filename: name, data: file }); $('#bkSheet').hidden = true; return; } } catch (e) { if (e && e.code === 'declined') return; } } // (in Claude: the viewer's own save)
-  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Thoughts backup' }); $('#bkSheet').hidden = true; unshift(); return; } } catch (e) { unshift(); if (e && e.name === 'AbortError') return; }
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Island backup' }); $('#bkSheet').hidden = true; unshift(); return; } } catch (e) { unshift(); if (e && e.name === 'AbortError') return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); $('#bkSheet').hidden = true; };
 $('#bkLoad').onclick = () => $('#bkFile').click();
 $('#bkFile').onchange = async e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
-  try { const d = JSON.parse(await f.text()); if (!d || !d.n || !Array.isArray(d.ideas)) throw new Error('not a Thoughts backup');
+  try { const d = JSON.parse(await f.text()); if (!d || !d.n || !Array.isArray(d.ideas)) throw new Error('not an Island backup');
     if (!confirm('Replace everything here with this backup?')) return;
     checkpoint(); db = d; colorCache.clear(); save(); saveNow(); nav = { view: 'tree', path: [] }; isleFocus = parcelFocus = houseFocus = null; $('#bkSheet').hidden = true; treeFitWidth = true; render(); toast('Backup restored');
-  } catch (err) { toast("That file isn't a Thoughts backup."); } };
+  } catch (err) { toast("That file isn't an Island backup."); } };
 function save() { db.at = Date.now(); edited = true; clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 300); }
 function saveNow() {
   clearTimeout(saveTimer);

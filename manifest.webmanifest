@@ -1,6 +1,6 @@
 {
-  "name": "Thoughts",
-  "short_name": "Thoughts",
+  "name": "Island",
+  "short_name": "Island",
   "description": "Islands of thoughts: name them, nest them, sketch on them.",
   "start_url": "./",
   "scope": "./",
