@@ -304,6 +304,7 @@ body.sketchmode, body.sketchmode * { user-select: none !important; -webkit-user-
   max-width: calc(100% - 32px); padding: 12px 18px; background: #000; color: #FFF; outline: 1px solid #333;
   font: 400 17px/24px var(--serif);
 }
+#toast.bk { font: 500 16px/24px var(--sans); } /* backup notes use the backup panel's font */
 @media (prefers-reduced-motion: reduce) { .slot { transition: none; } }
 
 /* A house up close on the map: Edit at the top right opens Type, Sketch and Colour */
@@ -634,8 +635,8 @@ $('#bkLoad').onclick = () => $('#bkFile').click();
 $('#bkFile').onchange = async e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
   try { const d = JSON.parse(await f.text()); if (!d || !d.n || !Array.isArray(d.ideas)) throw new Error('not an Island backup');
     if (!confirm('Replace everything here with this backup?')) return;
-    checkpoint(); db = d; colorCache.clear(); save(); saveNow(); nav = { view: 'tree', path: [] }; isleFocus = parcelFocus = houseFocus = null; $('#bkSheet').hidden = true; treeFitWidth = true; render(); toast('Backup restored');
-  } catch (err) { toast("That file isn't an Island backup."); } };
+    checkpoint(); db = d; colorCache.clear(); save(); saveNow(); nav = { view: 'tree', path: [] }; isleFocus = parcelFocus = houseFocus = null; $('#bkSheet').hidden = true; treeFitWidth = true; render(); toast('Backup restored', 'bk');
+  } catch (err) { toast("That file isn't an Island backup.", 'bk'); } };
 function save() { db.at = Date.now(); edited = true; clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 300); }
 function saveNow() {
   clearTimeout(saveTimer);
@@ -2311,8 +2312,8 @@ function openMenu(s) {
 }
 
 let toastTimer = 0;
-function toast(msg) {
-  const t = $('#toast'); t.textContent = msg; t.hidden = false;
+function toast(msg, cls) {
+  const t = $('#toast'); t.textContent = msg; t.className = cls || ''; t.hidden = false;
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
 }
 
