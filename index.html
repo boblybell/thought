@@ -154,6 +154,7 @@ body.dragging .upzone { display: flex; }
   display: block; max-width: 100%; min-width: 1ch; min-height: 1em; font-family: var(--tile-font); font-weight: 500; line-height: 1.08;
   letter-spacing: -.01em; overflow-wrap: normal; word-break: normal; outline: none; color: inherit;
 }
+.t > .row { display: block; width: max-content; max-width: none; margin: 0 auto; white-space: nowrap; line-height: 1; letter-spacing: -.01em; } /* poster names: one size per row (Bell 2026-11-25) */
 .t.tight { overflow-wrap: normal; } /* a word is never split across lines (Bell v287) */
 .t.untitled { opacity: .6; }
 .tree .t.untitled { font-weight: 300; }
@@ -1402,6 +1403,8 @@ function fit(t) {
   if (!W || !H || t.hidden) return; // (the longest word fits its line with a little room to spare, so the iPhone's slightly wider letters never push part of a word onto the next line, Bell v287)
   t.classList.remove('tight'); t.style.position = t.style.top = '';
   if (!t.textContent.trim()) { t.style.fontSize = Math.min(H * .4, 48) + 'px'; return; }
+  if (t.querySelector(':scope > .row') && (t.isContentEditable || t.closest('#hText.editing'))) t.textContent = t.textContent; // typing: plain text again
+  if (poster(t, W, H)) return;
   const cs = getComputedStyle(t), words = t.textContent.split(/\s+/).filter(Boolean);
   inkCtx.font = `${cs.fontStyle} ${cs.fontWeight} 100px ${cs.fontFamily}`; const wide = Math.max(...words.map(w => inkCtx.measureText(w).width)) / 100; // the longest word's width at 1px
   const tryH = HH => { let lo = 3, hi = Math.min(HH * .92, W, 220), best = lo; // (small houses deep down have small names)
@@ -1419,6 +1422,35 @@ function fit(t) {
   t.style.fontSize = (best >= 20 ? Math.floor(best) : Math.floor(best * 10) / 10) + 'px'; // (small houses: no rounding down a whole pixel)
   if (t.scrollWidth > W + 1) t.classList.add('tight');
   if (drawn || (multi && t.closest('#hText'))) inkMiddle(t);
+}
+// Poster names (Bell 2026-11-25): a name of two or more words is set in rows, each row at its own size so its words
+// fill the full width, the whole as large as the house allows. Rows are chosen to fill the height best.
+function poster(t, W, H) {
+  if (t.isContentEditable || t.closest('#hText.editing')) return false;
+  const words = t.textContent.split(/\s+/).filter(Boolean), n = words.length;
+  if (n < 2 || n > 10) { if (t.querySelector(':scope > .row')) t.textContent = words.join(' '); return false; }
+  const cs = getComputedStyle(t), drawn = t.closest('.tree, #hText') && !t.closest('.tsq.ol');
+  const HH = drawn ? H * .82 : H, Wt = W * .97, LH = 1, cap = Math.min(HH * .9, 400);
+  inkCtx.font = `${cs.fontStyle} ${cs.fontWeight} 100px ${cs.fontFamily}`;
+  const ww = words.map(w => inkCtx.measureText(w).width / 100), sp = inkCtx.measureText(' ').width / 100;
+  let best = null; // every way to cut the words into rows
+  for (let m = 0; m < 1 << (n - 1); m++) {
+    const rows = []; let cur = [0];
+    for (let i = 1; i < n; i++) { if (m & 1 << (i - 1)) { rows.push(cur); cur = [i]; } else cur.push(i); }
+    rows.push(cur);
+    const sz = rows.map(r => Math.min(cap, Wt / (r.reduce((a, i) => a + ww[i], 0) + sp * (r.length - 1)))), h = sz.reduce((a, b) => a + b * LH, 0);
+    const score = Math.min(...sz) * Math.min(1, HH / h) + h * 1e-6 * Math.min(1, HH / h); // the smallest row as big as it can be (all shrunk alike if too tall), then the most height filled
+    if (!best || score > best.score) best = { rows, sz, score };
+  }
+  const base = Math.max(...best.sz);
+  t.classList.remove('tight'); t.style.position = t.style.top = '';
+  t.textContent = '';
+  best.rows.forEach((r, k) => { if (k) t.append(' '); const e = document.createElement('span'); e.className = 'row'; e.textContent = r.map(i => words[i]).join(' '); e.style.fontSize = (best.sz[k] / base).toFixed(4) + 'em'; t.append(e); });
+  t.style.fontSize = base + 'px';
+  // measured on the page (the phone's own letters): each row stretched or shrunk to the full width
+  for (const e of t.children) { const ow = e.offsetWidth; if (ow) e.style.fontSize = Math.min(parseFloat(e.style.fontSize) * Wt / ow, cap / base).toFixed(4) + 'em'; }
+  const oh = t.offsetHeight; if (oh > HH) t.style.fontSize = base * HH / oh + 'px';
+  return true;
 }
 // Rows of a name sit with their letters (not their line boxes) centred on the middle of the house's wall (Bell v255)
 const inkCtx = document.createElement('canvas').getContext('2d');
@@ -1758,7 +1790,7 @@ function syncNText() {
     const k = R.width / (box.offsetWidth || 1); if (k < 1.05) continue; // (no bigger than drawn: already sharp)
     const cs = getComputedStyle(t), d = document.createElement('div'), c = document.createElement('span');
     Object.assign(d.style, { left: R.left - S.left + 'px', top: R.top - S.top + 'px', width: R.width + 'px', height: R.height + 'px' });
-    c.className = t.className.replace(/\bntx\b/, ''); c.textContent = t.textContent;
+    c.className = t.className.replace(/\bntx\b/, ''); if (t.querySelector(':scope > .row')) t.childNodes.forEach(x => c.appendChild(x.cloneNode(true))); else c.textContent = t.textContent;
     Object.assign(c.style, { fontSize: parseFloat(cs.fontSize) * k + 'px', fontWeight: cs.fontWeight, fontStyle: cs.fontStyle, fontFamily: cs.fontFamily, color: cs.color, opacity: cs.opacity, lineHeight: parseFloat(cs.lineHeight) * k + 'px', letterSpacing: (parseFloat(cs.letterSpacing) || 0) * k + 'px', overflowWrap: cs.overflowWrap, wordBreak: cs.wordBreak, whiteSpace: cs.whiteSpace, textTransform: cs.textTransform, position: t.style.position, top: t.style.top });
     d.appendChild(c); o.appendChild(d); t.classList.add('ntx'); n++;
   }
@@ -1814,7 +1846,7 @@ function liveBegin(rx0, ry0, rx1, ry1) {
       if (names.length > 250 || t.isContentEditable || !t.textContent.trim() || t.closest('.tsq') !== h) continue;
       const box = t.parentElement; let bx = 0, by = 0; for (let e = box; e && e !== h; e = e.offsetParent) { bx += e.offsetLeft; by += e.offsetTop; }
       const cs = getComputedStyle(t), d = document.createElement('div'), c = document.createElement('span');
-      c.className = t.className.replace(/\bntx\b/, ''); c.textContent = t.textContent;
+      c.className = t.className.replace(/\bntx\b/, ''); if (t.querySelector(':scope > .row')) t.childNodes.forEach(x => c.appendChild(x.cloneNode(true))); else c.textContent = t.textContent;
       Object.assign(c.style, { fontWeight: cs.fontWeight, fontStyle: cs.fontStyle, fontFamily: cs.fontFamily, color: cs.color, opacity: cs.opacity, overflowWrap: cs.overflowWrap, wordBreak: cs.wordBreak, whiteSpace: cs.whiteSpace, textTransform: cs.textTransform, position: t.style.position, top: t.style.top });
       d.appendChild(c); o.appendChild(d); t.classList.add('ntx');
       names.push({ d, c, x: x + bx, y: y + by, w: box.offsetWidth, h: box.offsetHeight, fs: parseFloat(cs.fontSize), lh: parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.08, ls: parseFloat(cs.letterSpacing) || 0 });
