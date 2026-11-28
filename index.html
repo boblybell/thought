@@ -327,6 +327,8 @@ button, #bkSheet, #hint, #houseTools { touch-action: manipulation; } /* no doubl
 #bkSheet { position: absolute; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 22; background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 14px; padding: 12px; display: grid; gap: 8px; } #bkSheet[hidden] { display: none; } #bkSheet button { height: 44px; border: 1.5px solid var(--ink); border-radius: 10px; background: none; color: var(--ink); font: 500 16px/1 var(--sans); } #bkSheet p { margin: 2px 4px 0; font: 400 13px/1.35 var(--sans); opacity: .75; } /* backup and restore (v273) */
 #setSheet, #colSheet { position: absolute; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 22; background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 14px; padding: 12px; display: grid; gap: 8px; touch-action: manipulation; } #setSheet[hidden], #colSheet[hidden] { display: none; } .sheet p { margin: 2px 4px 0; font: 400 13px/1.35 var(--sans); opacity: .75; } .sheet p.hd { font-size: 16px; font-weight: 500; opacity: 1; margin: 2px 4px 4px; }
 .sheet .tgl { height: 44px; border: 1.5px solid var(--ink); border-radius: 10px; background: none; color: var(--ink); font: 500 16px/1 var(--sans); display: flex; align-items: center; justify-content: space-between; padding: 0 10px 0 14px; } .sheet .tgl i { width: 42px; height: 24px; border: 1.5px solid var(--ink); border-radius: 999px; position: relative; box-sizing: border-box; transition: background .15s; } .sheet .tgl i::after { content: ''; position: absolute; top: 2.5px; left: 2.5px; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--ink); box-sizing: border-box; background: var(--paper); transition: transform .15s; } .sheet .tgl[aria-checked="true"] i { background: var(--ink); } .sheet .tgl[aria-checked="true"] i::after { transform: translateX(18px); } /* settings: color mode (Bell 2026-11-28) */
+.sheet .seg { height: 44px; border: 1.5px solid var(--ink); border-radius: 10px; display: flex; align-items: center; gap: 6px; padding: 0 5px 0 14px; font: 500 16px/1 var(--sans); } .sheet .seg span { flex: 1; } .sheet .seg button { height: 32px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: 8px; font: 500 14px/1 var(--sans); color: var(--ink); } .sheet .seg button[aria-checked="true"] { background: var(--ink); color: var(--paper); }
+body.inkb .tree .tsq, body.inkb .nText > div, body.inkb #hText { --on: #000 !important; } body.inkb .tree .t, body.inkb .nText .t, body.inkb #hText .t { color: #000 !important; } body.inkb .hol path, body.inkb svg.ln path { stroke: #000 !important; } /* Text color: black names and house lines (Bell 2026-11-28) */
 .sheet .swg { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 2px 2px 4px; } .sheet .swg button { display: block; width: 100%; height: auto; min-height: 0; aspect-ratio: 1; border-radius: 50%; border: 1.5px solid var(--ink); padding: 0; } .sheet .swg button.wh { background: conic-gradient(from 90deg, hsl(0 70% 68%), hsl(60 70% 68%), hsl(120 70% 68%), hsl(180 70% 68%), hsl(240 70% 68%), hsl(300 70% 68%), hsl(360 70% 68%)); }
 #colWheel { display: grid; gap: 12px; justify-items: center; } #colWheel[hidden] { display: none; } #colWheel .disc { position: relative; width: min(64vw, 240px); aspect-ratio: 1; border-radius: 50%; border: 1.5px solid var(--ink); touch-action: none; } #colWheel .dot { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; border: 1.5px solid var(--ink); box-shadow: 0 0 0 2.5px var(--paper); pointer-events: none; } #colWheel button { justify-self: stretch; height: 44px; border: 1.5px solid var(--ink); border-radius: 10px; color: var(--ink); font: 500 16px/1 var(--sans); }
 .sheet .swg button.on { box-shadow: 0 0 0 3px var(--paper), 0 0 0 4.5px var(--ink); }
@@ -369,7 +371,7 @@ button, #bkSheet, #hint, #houseTools { touch-action: manipulation; } /* no doubl
     <div id="houseMenu" hidden><button class="hic" data-act="type" aria-label="Type"><svg class="ic" viewBox="0 0 24 24"><path d="M5 5.5h14M12 5.5V20"/></svg></button><button class="hic" data-act="sketch" aria-label="Sketch"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20l1.2-4.8L15.5 4.9l3.6 3.6L8.8 18.8zM13.5 6.9l3.6 3.6"/></svg></button><button class="hic" data-act="pat" aria-label="Pattern from sketch"><svg class="ic" viewBox="0 0 24 24"><path d="M5.5 6.5h3M5.5 15.5h3M10.5 11h3M10.5 20h3M15.5 6.5h3M15.5 15.5h3"/></svg></button><button class="hic" data-act="look" aria-label="Color"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3.5c3.6 4.4 6 7.6 6 10.9a6 6 0 0 1-12 0c0-3.3 2.4-6.5 6-10.9z"/></svg></button></div>
   </div>
   <div id="bkSheet" hidden><button id="bkSave">Save a backup</button><button id="bkLoad">Restore a backup</button><p>Your thoughts are kept on this phone. Save a backup to Files now and then; restore puts a saved backup back.</p><input id="bkFile" type="file" accept=".json,application/json" hidden></div>
-  <div id="setSheet" class="sheet" hidden><button id="colorModeBtn" class="tgl" role="switch" aria-checked="false"><span>Color mode</span><i></i></button><p>When color mode is on, each island gets its own color. Hold an island to change it.</p></div>
+  <div id="setSheet" class="sheet" hidden><button id="colorModeBtn" class="tgl" role="switch" aria-checked="false"><span>Color mode</span><i></i></button><p>When color mode is on, each island gets its own color. Hold an island to change it.</p><div class="seg" role="radiogroup" aria-label="Text color"><span>Text color</span><button data-ink="w" role="radio">White</button><button data-ink="b" role="radio">Black</button></div></div>
   <div id="colSheet" class="sheet" hidden><p class="hd">Island color</p><div class="swg"></div><div id="colWheel" hidden><div class="disc"><i class="dot"></i></div><button id="colWheelOk">Done</button></div></div>
   <div id="lookSheet" hidden aria-label="Color and pattern">
     <button class="done hic" id="lookDone" hidden aria-label="Done"><svg class="ic" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11"/></svg></button>
@@ -626,7 +628,7 @@ function undo(quiet) {
   let snap;
   while (undoHistory.length && (snap = undoHistory.pop()) === now) snap = null;
   if (!snap) { syncUndo(); toast('Nothing to undo'); return; }
-  db = JSON.parse(snap); saveNow();
+  db = JSON.parse(snap); saveNow(); syncSet();
   if (!$('#pad').hidden) { padId = null; $('#pad').hidden = true; }
   // stay where we are if that square still exists, otherwise step back up
   let path = nav.path.slice();
@@ -647,7 +649,7 @@ $('#bkLoad').onclick = () => $('#bkFile').click();
 $('#bkFile').onchange = async e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
   try { const d = JSON.parse(await f.text()); if (!d || !d.n || !Array.isArray(d.ideas)) throw new Error('not an Island backup');
     if (!confirm('Replace everything here with this backup?')) return;
-    checkpoint(); db = d; colorCache.clear(); save(); saveNow(); nav = { view: 'tree', path: [] }; isleFocus = parcelFocus = houseFocus = null; $('#bkSheet').hidden = true; treeFitWidth = true; render(); toast('Backup restored', 'bk');
+    checkpoint(); db = d; colorCache.clear(); syncSet(); save(); saveNow(); nav = { view: 'tree', path: [] }; isleFocus = parcelFocus = houseFocus = null; $('#bkSheet').hidden = true; treeFitWidth = true; render(); toast('Backup restored', 'bk');
   } catch (err) { toast("That file isn't an Island backup.", 'bk'); } };
 function save() { db.at = Date.now(); edited = true; clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 300); }
 function saveNow() {
@@ -919,9 +921,11 @@ function zoomTree(k, mx = stage.clientWidth / 2, my = stage.clientHeight / 2) {
 // Hold a house until it lifts, drag it onto another house and let go: it moves into that house's parcel,
 // with every house inside it (Bell v260). Let go anywhere else and it stays where it was.
 let moveEnd = 0;
-function syncSet() { const b = document.getElementById('colorModeBtn'); if (b) b.setAttribute('aria-checked', db.colorMode ? 'true' : 'false'); }
+function syncSet() { const b = document.getElementById('colorModeBtn'); if (b) b.setAttribute('aria-checked', db.colorMode ? 'true' : 'false'); document.body.classList.toggle('inkb', db.ink === 'b'); document.querySelectorAll('#setSheet [data-ink]').forEach(x => x.setAttribute('aria-checked', (db.ink === 'b' ? 'b' : 'w') === x.dataset.ink ? 'true' : 'false')); }
 (() => { // Settings: Color mode, and hold an island to pick its color (Bell 2026-11-28)
   $('#colorModeBtn').onclick = () => { checkpoint(); db.colorMode = !db.colorMode; save(); syncSet(); render(null, true); };
+  document.querySelectorAll('#setSheet [data-ink]').forEach(x => x.onclick = () => { checkpoint(); db.ink = x.dataset.ink; save(); syncSet(); });
+  syncSet();
   let colFor = null;
   const openCol = id => {
     colFor = id; const n = db.n[id] || {}, cur = n.ic === 'g' ? 'g' : Array.isArray(n.ic) ? 'w' : Number.isInteger(n.ic) ? n.ic : Math.max(0, db.ideas.indexOf(id)) % ISLE_HUES.length;
