@@ -425,7 +425,7 @@ const HOUSE = { roof: 36, w: 126, h: 96 }; // a house on the map: its roof and i
 // Farmland (Bell v241): every island and parcel is ploughed in one of six field patterns, laid over its own green; all in one light tint (Bell v244)
 const ISLE_HUES = [[340, 62, 76], [38, 80, 64], [265, 42, 70], [0, 62, 72], [18, 75, 70], [175, 50, 46], [315, 45, 70], [215, 45, 54]]; // Color mode (Bell 2026-11-28): one solid pastel per island, each parcel layer in a little deeper
 const isleHue = id => { const n = db.n[id]; if (n && n.ic === 'g') return null; if (n && Array.isArray(n.ic)) return n.ic; const i = n && Number.isInteger(n.ic) ? n.ic : Math.max(0, db.ideas.indexOf(id)); return ISLE_HUES[i % ISLE_HUES.length]; };
-const hueCss = (h, d = 0) => `hsl(${h[0]} ${Math.min(100, h[1] + 3 * d)}% ${Math.max(8, h[2] - 6 * d)}%)`;
+const hueCss = (h, d = 0) => `hsl(${h[0]} ${Math.min(100, h[1] + 4 * d)}% ${!d ? h[2] : d % 2 ? Math.max(10, h[2] - 14 - 8 * (d - 1) / 2) : Math.min(92, h[2] - 4 + 6 * (d / 2 - 1))}%)`;
 const isleCol = (id, d = 0) => { if (!db.colorMode) return null; const h = isleHue(id); return h ? hueCss(h, d) : null; }; // null: the usual greens
 const FARM_GREEN = ['#41A67A', '#328F66', '#267B55', '#1C6544', '#134D33', '#0B3422', '#051A10']; const MAX_PATH = 7; // an island's house and up to 6 parcel layers under it (Bell v262) // the island, then each parcel layer in (as .tree .parcel)
 const farmOf = key => { let h = 2166136261; for (const ch of String(key)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return ((h ^ (h >>> 15)) >>> 0) % 6; };
