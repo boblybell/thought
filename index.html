@@ -327,7 +327,9 @@ button, #bkSheet, #hint, #houseTools { touch-action: manipulation; } /* no doubl
 #bkSheet { position: absolute; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 22; background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 14px; padding: 12px; display: grid; gap: 8px; } #bkSheet[hidden] { display: none; } #bkSheet button { height: 44px; border: 1.5px solid var(--ink); border-radius: 10px; background: none; color: var(--ink); font: 500 16px/1 var(--sans); } #bkSheet p { margin: 2px 4px 0; font: 400 13px/1.35 var(--sans); opacity: .75; } /* backup and restore (v273) */
 #setSheet, #colSheet { position: absolute; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 22; background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 14px; padding: 12px; display: grid; gap: 8px; touch-action: manipulation; } #setSheet[hidden], #colSheet[hidden] { display: none; } .sheet p { margin: 2px 4px 0; font: 400 13px/1.35 var(--sans); opacity: .75; } .sheet p.hd { font-size: 16px; font-weight: 500; opacity: 1; margin: 2px 4px 4px; }
 .sheet .tgl { height: 44px; border: 1.5px solid var(--ink); border-radius: 10px; background: none; color: var(--ink); font: 500 16px/1 var(--sans); display: flex; align-items: center; justify-content: space-between; padding: 0 10px 0 14px; } .sheet .tgl i { width: 42px; height: 24px; border: 1.5px solid var(--ink); border-radius: 999px; position: relative; box-sizing: border-box; transition: background .15s; } .sheet .tgl i::after { content: ''; position: absolute; top: 2.5px; left: 2.5px; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--ink); box-sizing: border-box; background: var(--paper); transition: transform .15s; } .sheet .tgl[aria-checked="true"] i { background: var(--ink); } .sheet .tgl[aria-checked="true"] i::after { transform: translateX(18px); } /* settings: color mode (Bell 2026-11-28) */
-.sheet .swg { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 2px 2px 4px; } .sheet .swg button { display: block; width: 100%; height: auto; min-height: 0; aspect-ratio: 1; border-radius: 50%; border: 1.5px solid var(--ink); padding: 0; } .sheet .swg button.on { box-shadow: 0 0 0 3px var(--paper), 0 0 0 4.5px var(--ink); }
+.sheet .swg { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 2px 2px 4px; } .sheet .swg button { display: block; width: 100%; height: auto; min-height: 0; aspect-ratio: 1; border-radius: 50%; border: 1.5px solid var(--ink); padding: 0; } .sheet .swg button.wh { background: conic-gradient(from 90deg, hsl(0 70% 68%), hsl(60 70% 68%), hsl(120 70% 68%), hsl(180 70% 68%), hsl(240 70% 68%), hsl(300 70% 68%), hsl(360 70% 68%)); }
+#colWheel { display: grid; gap: 12px; justify-items: center; } #colWheel[hidden] { display: none; } #colWheel .disc { position: relative; width: min(64vw, 240px); aspect-ratio: 1; border-radius: 50%; border: 1.5px solid var(--ink); touch-action: none; } #colWheel .dot { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; border: 1.5px solid var(--ink); box-shadow: 0 0 0 2.5px var(--paper); pointer-events: none; } #colWheel button { justify-self: stretch; height: 44px; border: 1.5px solid var(--ink); border-radius: 10px; color: var(--ink); font: 500 16px/1 var(--sans); }
+.sheet .swg button.on { box-shadow: 0 0 0 3px var(--paper), 0 0 0 4.5px var(--ink); }
 #lookSheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 21; background: var(--paper); border-top: 1.5px solid var(--ink); padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); }
 #lookSheet h2 { margin: 0 0 8px; font: 400 13px/18px var(--sans); letter-spacing: .02em; color: var(--muted); }
 #lookSheet .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
@@ -368,7 +370,7 @@ button, #bkSheet, #hint, #houseTools { touch-action: manipulation; } /* no doubl
   </div>
   <div id="bkSheet" hidden><button id="bkSave">Save a backup</button><button id="bkLoad">Restore a backup</button><p>Your thoughts are kept on this phone. Save a backup to Files now and then; restore puts a saved backup back.</p><input id="bkFile" type="file" accept=".json,application/json" hidden></div>
   <div id="setSheet" class="sheet" hidden><button id="colorModeBtn" class="tgl" role="switch" aria-checked="false"><span>Color mode</span><i></i></button><p>When color mode is on, each island gets its own color. Hold an island to change it.</p></div>
-  <div id="colSheet" class="sheet" hidden><p class="hd">Island color</p><div class="swg"></div></div>
+  <div id="colSheet" class="sheet" hidden><p class="hd">Island color</p><div class="swg"></div><div id="colWheel" hidden><div class="disc"><i class="dot"></i></div><button id="colWheelOk">Done</button></div></div>
   <div id="lookSheet" hidden aria-label="Color and pattern">
     <button class="done hic" id="lookDone" hidden aria-label="Done"><svg class="ic" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11"/></svg></button>
     <h2>Color</h2><div class="row" id="lookColors"></div>
@@ -419,8 +421,8 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 /* Palette E (Painted jungle) from the Thoughts design system: [name, fill, text, hue family, share of tiles] */
 const HOUSE = { roof: 36, w: 126, h: 96 }; // a house on the map: its roof and its body
 // Farmland (Bell v241): every island and parcel is ploughed in one of six field patterns, laid over its own green; all in one light tint (Bell v244)
-const ISLE_HUES = [[340, 62, 70], [38, 80, 58], [265, 42, 64], [0, 62, 66], [18, 75, 64], [175, 50, 40], [315, 45, 64], [215, 45, 48]]; // Color mode (Bell 2026-11-28): one solid pastel per island, each parcel layer in a little deeper
-const isleHue = id => { const n = db.n[id]; if (n && n.ic === 'g') return null; const i = n && Number.isInteger(n.ic) ? n.ic : Math.max(0, db.ideas.indexOf(id)); return ISLE_HUES[i % ISLE_HUES.length]; };
+const ISLE_HUES = [[340, 62, 76], [38, 80, 64], [265, 42, 70], [0, 62, 72], [18, 75, 70], [175, 50, 46], [315, 45, 70], [215, 45, 54]]; // Color mode (Bell 2026-11-28): one solid pastel per island, each parcel layer in a little deeper
+const isleHue = id => { const n = db.n[id]; if (n && n.ic === 'g') return null; if (n && Array.isArray(n.ic)) return n.ic; const i = n && Number.isInteger(n.ic) ? n.ic : Math.max(0, db.ideas.indexOf(id)); return ISLE_HUES[i % ISLE_HUES.length]; };
 const hueCss = (h, d = 0) => `hsl(${h[0]} ${Math.min(100, h[1] + 3 * d)}% ${Math.max(8, h[2] - 6 * d)}%)`;
 const isleCol = (id, d = 0) => { if (!db.colorMode) return null; const h = isleHue(id); return h ? hueCss(h, d) : null; }; // null: the usual greens
 const FARM_GREEN = ['#41A67A', '#328F66', '#267B55', '#1C6544', '#134D33', '#0B3422', '#051A10']; const MAX_PATH = 7; // an island's house and up to 6 parcel layers under it (Bell v262) // the island, then each parcel layer in (as .tree .parcel)
@@ -922,11 +924,25 @@ function syncSet() { const b = document.getElementById('colorModeBtn'); if (b) b
   $('#colorModeBtn').onclick = () => { checkpoint(); db.colorMode = !db.colorMode; save(); syncSet(); render(null, true); };
   let colFor = null;
   const openCol = id => {
-    colFor = id; const n = db.n[id] || {}, cur = n.ic === 'g' ? 'g' : Number.isInteger(n.ic) ? n.ic : Math.max(0, db.ideas.indexOf(id)) % ISLE_HUES.length;
-    $('#colSheet .swg').innerHTML = ISLE_HUES.map((h, i) => `<button data-ic="${i}" class="${cur === i ? 'on' : ''}" style="background:${hueCss(h)}" aria-label="Color ${i + 1}"></button>`).join('') + `<button data-ic="g" class="${cur === 'g' ? 'on' : ''}" style="background:${FARM_GREEN[0]}" aria-label="Green"></button>`;
+    colFor = id; const n = db.n[id] || {}, cur = n.ic === 'g' ? 'g' : Array.isArray(n.ic) ? 'w' : Number.isInteger(n.ic) ? n.ic : Math.max(0, db.ideas.indexOf(id)) % ISLE_HUES.length;
+    $('#colSheet .swg').innerHTML = ISLE_HUES.map((h, i) => `<button data-ic="${i}" class="${cur === i ? 'on' : ''}" style="background:${hueCss(h)}" aria-label="Color ${i + 1}"></button>`).join('') + `<button data-ic="g" class="${cur === 'g' ? 'on' : ''}" style="background:${FARM_GREEN[0]}" aria-label="Green"></button><button data-ic="w" class="wh${cur === 'w' ? ' on' : ''}" style="${cur === 'w' ? `background:${hueCss(n.ic)}` : ''}" aria-label="Pick on the color wheel"></button>`;
+    $('#colSheet .swg').hidden = false; $('#colWheel').hidden = true; $('#colSheet .hd').textContent = 'Island color';
     $('#bkSheet').hidden = $('#setSheet').hidden = true; $('#colSheet').hidden = false;
   };
-  $('#colSheet').addEventListener('click', e => { const b = e.target.closest('[data-ic]'); if (!b || !colFor || !db.n[colFor]) return; checkpoint(); db.n[colFor].ic = b.dataset.ic === 'g' ? 'g' : +b.dataset.ic; save(); $('#colSheet').hidden = true; colFor = null; render(null, true); });
+  // the color wheel (Bell 2026-11-28): round = hue, out from the middle = how strong; lightness stays the islands' own
+  const WL = 68, wheel = $('#colWheel'), disc = wheel.querySelector('.disc'), dot = wheel.querySelector('.dot');
+  disc.style.background = `radial-gradient(circle, hsl(0 0% ${WL}%) 0%, hsl(0 0% ${WL}% / 0) 72%), conic-gradient(from 90deg, ${[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360].map(h => `hsl(${h} 85% ${WL}%)`).join(', ')})`;
+  const showDot = c => { const a = c[0] * Math.PI / 180, r = Math.min(1, c[1] / 85) * 50; dot.style.left = 50 + r * Math.cos(a) + '%'; dot.style.top = 50 + r * Math.sin(a) + '%'; dot.style.background = hueCss(c); };
+  const openWheel = () => { const n = db.n[colFor]; const c = Array.isArray(n.ic) ? n.ic : isleHue(colFor) || [150, 45, WL]; $('#colSheet .swg').hidden = true; wheel.hidden = false; $('#colSheet .hd').textContent = 'Pick a color'; showDot(c); };
+  let wDrag = null;
+  const pickAt = e => { const r = disc.getBoundingClientRect(), x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2);
+    const h = Math.round((Math.atan2(y, x) * 180 / Math.PI + 360) % 360), s = Math.round(Math.min(1, Math.hypot(x, y) / (r.width / 2)) * 85); wDrag = [h, s, WL]; showDot(wDrag); };
+  disc.addEventListener('pointerdown', e => { e.preventDefault(); disc.setPointerCapture(e.pointerId); pickAt(e); });
+  disc.addEventListener('pointermove', e => { if (wDrag) pickAt(e); });
+  const wUp = () => { if (!wDrag || !colFor || !db.n[colFor]) return; const c = wDrag; wDrag = null; checkpoint(); db.n[colFor].ic = c; save(); render(null, true); };
+  disc.addEventListener('pointerup', wUp); disc.addEventListener('pointercancel', wUp);
+  $('#colWheelOk').onclick = () => { $('#colSheet').hidden = true; colFor = null; };
+  $('#colSheet').addEventListener('click', e => { const b = e.target.closest('[data-ic]'); if (!b || !colFor || !db.n[colFor]) return; if (b.dataset.ic === 'w') return openWheel(); checkpoint(); db.n[colFor].ic = b.dataset.ic === 'g' ? 'g' : +b.dataset.ic; save(); $('#colSheet').hidden = true; colFor = null; render(null, true); });
   document.addEventListener('pointerdown', e => { if (!$('#colSheet').hidden && !e.target.closest('#colSheet')) { $('#colSheet').hidden = true; colFor = null; } }, true); // a tap anywhere else closes it
   let hold = null, fired = false; const downs = new Set();
   const stop = () => { if (hold) { clearTimeout(hold.timer); hold = null; } };
