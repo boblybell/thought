@@ -325,6 +325,9 @@ button.islb, #lookSheet button.done.islb { width: 44px; height: 44px; min-width:
 
 button, #bkSheet, #hint, #houseTools { touch-action: manipulation; } /* no double-tap zoom on buttons (Bell v276: the page zoomed after Save a backup) */
 #bkSheet { position: absolute; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 22; background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 14px; padding: 12px; display: grid; gap: 8px; } #bkSheet[hidden] { display: none; } #bkSheet button { height: 44px; border: 1.5px solid var(--ink); border-radius: 10px; background: none; color: var(--ink); font: 500 16px/1 var(--sans); } #bkSheet p { margin: 2px 4px 0; font: 400 13px/1.35 var(--sans); opacity: .75; } /* backup and restore (v273) */
+#setSheet, #colSheet { position: absolute; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 22; background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 14px; padding: 12px; display: grid; gap: 8px; touch-action: manipulation; } #setSheet[hidden], #colSheet[hidden] { display: none; } .sheet p { margin: 2px 4px 0; font: 400 13px/1.35 var(--sans); opacity: .75; } .sheet p.hd { font-size: 16px; font-weight: 500; opacity: 1; margin: 2px 4px 4px; }
+.sheet .tgl { height: 44px; border: 1.5px solid var(--ink); border-radius: 10px; background: none; color: var(--ink); font: 500 16px/1 var(--sans); display: flex; align-items: center; justify-content: space-between; padding: 0 10px 0 14px; } .sheet .tgl i { width: 42px; height: 24px; border: 1.5px solid var(--ink); border-radius: 999px; position: relative; box-sizing: border-box; transition: background .15s; } .sheet .tgl i::after { content: ''; position: absolute; top: 2.5px; left: 2.5px; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--ink); box-sizing: border-box; background: var(--paper); transition: transform .15s; } .sheet .tgl[aria-checked="true"] i { background: var(--ink); } .sheet .tgl[aria-checked="true"] i::after { transform: translateX(18px); } /* settings: color mode (Bell 2026-11-28) */
+.sheet .swg { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 2px 2px 4px; } .sheet .swg button { display: block; width: 100%; height: auto; min-height: 0; aspect-ratio: 1; border-radius: 50%; border: 1.5px solid var(--ink); padding: 0; } .sheet .swg button.on { box-shadow: 0 0 0 3px var(--paper), 0 0 0 4.5px var(--ink); }
 #lookSheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 21; background: var(--paper); border-top: 1.5px solid var(--ink); padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); }
 #lookSheet h2 { margin: 0 0 8px; font: 400 13px/18px var(--sans); letter-spacing: .02em; color: var(--muted); }
 #lookSheet .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
@@ -364,6 +367,8 @@ button, #bkSheet, #hint, #houseTools { touch-action: manipulation; } /* no doubl
     <div id="houseMenu" hidden><button class="hic" data-act="type" aria-label="Type"><svg class="ic" viewBox="0 0 24 24"><path d="M5 5.5h14M12 5.5V20"/></svg></button><button class="hic" data-act="sketch" aria-label="Sketch"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20l1.2-4.8L15.5 4.9l3.6 3.6L8.8 18.8zM13.5 6.9l3.6 3.6"/></svg></button><button class="hic" data-act="pat" aria-label="Pattern from sketch"><svg class="ic" viewBox="0 0 24 24"><path d="M5.5 6.5h3M5.5 15.5h3M10.5 11h3M10.5 20h3M15.5 6.5h3M15.5 15.5h3"/></svg></button><button class="hic" data-act="look" aria-label="Color"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3.5c3.6 4.4 6 7.6 6 10.9a6 6 0 0 1-12 0c0-3.3 2.4-6.5 6-10.9z"/></svg></button></div>
   </div>
   <div id="bkSheet" hidden><button id="bkSave">Save a backup</button><button id="bkLoad">Restore a backup</button><p>Your thoughts are kept on this phone. Save a backup to Files now and then; restore puts a saved backup back.</p><input id="bkFile" type="file" accept=".json,application/json" hidden></div>
+  <div id="setSheet" class="sheet" hidden><button id="colorModeBtn" class="tgl" role="switch" aria-checked="false"><span>Color mode</span><i></i></button><p>When color mode is on, each island gets its own color. Hold an island to change it.</p></div>
+  <div id="colSheet" class="sheet" hidden><p class="hd">Island color</p><div class="swg"></div></div>
   <div id="lookSheet" hidden aria-label="Color and pattern">
     <button class="done hic" id="lookDone" hidden aria-label="Done"><svg class="ic" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11"/></svg></button>
     <h2>Color</h2><div class="row" id="lookColors"></div>
@@ -414,6 +419,10 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 /* Palette E (Painted jungle) from the Thoughts design system: [name, fill, text, hue family, share of tiles] */
 const HOUSE = { roof: 36, w: 126, h: 96 }; // a house on the map: its roof and its body
 // Farmland (Bell v241): every island and parcel is ploughed in one of six field patterns, laid over its own green; all in one light tint (Bell v244)
+const ISLE_HUES = [[340, 62, 70], [38, 80, 58], [265, 42, 64], [0, 62, 66], [18, 75, 64], [175, 50, 40], [315, 45, 64], [215, 45, 48]]; // Color mode (Bell 2026-11-28): one solid pastel per island, each parcel layer in a little deeper
+const isleHue = id => { const n = db.n[id]; if (n && n.ic === 'g') return null; const i = n && Number.isInteger(n.ic) ? n.ic : Math.max(0, db.ideas.indexOf(id)); return ISLE_HUES[i % ISLE_HUES.length]; };
+const hueCss = (h, d = 0) => `hsl(${h[0]} ${Math.min(100, h[1] + 3 * d)}% ${Math.max(8, h[2] - 6 * d)}%)`;
+const isleCol = (id, d = 0) => { if (!db.colorMode) return null; const h = isleHue(id); return h ? hueCss(h, d) : null; }; // null: the usual greens
 const FARM_GREEN = ['#41A67A', '#328F66', '#267B55', '#1C6544', '#134D33', '#0B3422', '#051A10']; const MAX_PATH = 7; // an island's house and up to 6 parcel layers under it (Bell v262) // the island, then each parcel layer in (as .tree .parcel)
 const farmOf = key => { let h = 2166136261; for (const ch of String(key)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return ((h ^ (h >>> 15)) >>> 0) % 6; };
 // a parcel's pattern is never the one of the land around it, and houses side by side in one parcel each get their own (Bell v246)
@@ -908,6 +917,31 @@ function zoomTree(k, mx = stage.clientWidth / 2, my = stage.clientHeight / 2) {
 // Hold a house until it lifts, drag it onto another house and let go: it moves into that house's parcel,
 // with every house inside it (Bell v260). Let go anywhere else and it stays where it was.
 let moveEnd = 0;
+function syncSet() { const b = document.getElementById('colorModeBtn'); if (b) b.setAttribute('aria-checked', db.colorMode ? 'true' : 'false'); }
+(() => { // Settings: Color mode, and hold an island to pick its color (Bell 2026-11-28)
+  $('#colorModeBtn').onclick = () => { checkpoint(); db.colorMode = !db.colorMode; save(); syncSet(); render(null, true); };
+  let colFor = null;
+  const openCol = id => {
+    colFor = id; const n = db.n[id] || {}, cur = n.ic === 'g' ? 'g' : Number.isInteger(n.ic) ? n.ic : Math.max(0, db.ideas.indexOf(id)) % ISLE_HUES.length;
+    $('#colSheet .swg').innerHTML = ISLE_HUES.map((h, i) => `<button data-ic="${i}" class="${cur === i ? 'on' : ''}" style="background:${hueCss(h)}" aria-label="Color ${i + 1}"></button>`).join('') + `<button data-ic="g" class="${cur === 'g' ? 'on' : ''}" style="background:${FARM_GREEN[0]}" aria-label="Green"></button>`;
+    $('#bkSheet').hidden = $('#setSheet').hidden = true; $('#colSheet').hidden = false;
+  };
+  $('#colSheet').addEventListener('click', e => { const b = e.target.closest('[data-ic]'); if (!b || !colFor || !db.n[colFor]) return; checkpoint(); db.n[colFor].ic = b.dataset.ic === 'g' ? 'g' : +b.dataset.ic; save(); $('#colSheet').hidden = true; colFor = null; render(null, true); });
+  document.addEventListener('pointerdown', e => { if (!$('#colSheet').hidden && !e.target.closest('#colSheet')) { $('#colSheet').hidden = true; colFor = null; } }, true); // a tap anywhere else closes it
+  let hold = null, fired = false; const downs = new Set();
+  const stop = () => { if (hold) { clearTimeout(hold.timer); hold = null; } };
+  stage.addEventListener('pointerdown', e => {
+    downs.add(e.pointerId); stop(); fired = false;
+    if (downs.size !== 1 || !db.colorMode || nav.view !== 'tree' || houseFocus || delMode || glide) return;
+    const g = e.target.closest && e.target.closest('.tree g[data-isle]'), h = e.target.closest && e.target.closest('.tree .tsq[data-path]');
+    const id = g ? g.dataset.isle : h && !h.dataset.path.includes(' ') && !h.isContentEditable ? h.dataset.path : null; // the island's land or its own house (a parcel's hold still moves it)
+    if (!id || !db.n[id]) return;
+    hold = { id, x: e.clientX, y: e.clientY, timer: setTimeout(() => { const i = hold && hold.id; hold = null; if (!i) return; fired = true; if (navigator.vibrate) try { navigator.vibrate(10); } catch (_) {} openCol(i); }, 500) };
+  });
+  stage.addEventListener('pointermove', e => { if (hold && Math.hypot(e.clientX - hold.x, e.clientY - hold.y) > 8) stop(); });
+  const up = e => { downs.delete(e.pointerId); stop(); if (fired) { moveEnd = performance.now(); fired = false; } }; // the click after the hold must not zoom to the island
+  stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
+})();
 (() => {
   let hold = null, mv = null;
   const inPath = (k, P) => k === P || k.startsWith(P + ' ');
@@ -1017,7 +1051,7 @@ function renderTree(undoHtml) {
     // Bell v213: houses are greys by layer, dark grey on the first layer to white on the deepest; v234: one scale for every island, so a layer is the same grey everywhere;
     // the text keeps the house's palette colour
     let d = 1, isle = id; for (let a = pid; a && a !== ROOT; a = parentOf(a)) { d++; isle = a; }
-    const grey = FARM_GREEN[Math.min(d, FARM_GREEN.length) - 1], g = 0; // Bell v241: a house is the green of its own land (island, then darker parcel greens), no more greys
+    const grey = isleCol(isle, d - 1) || FARM_GREEN[Math.min(d, FARM_GREEN.length) - 1], g = 0; // Bell v241: a house is the green of its own land (island, then darker parcel greens), no more greys
     const ink = f ? f.hex : t === TILE.paper && g > 0xB0 ? '#B9A98F' : t.hex; // (paper text on a pale house: a warm sand, so it still shows)
     const hand = TILE[tileOf((db.n[id] || {}).tint)]; if (hand) return `--tile:${hand.hex};--on:#FFF;--sk:${hand.on}`; // a colour picked for the house paints the house (Bell v229)
     return `--tile:${grey};--on:#FFF;--sk:${g > 0x9A ? '#000' : '#FFF'}`; // --sk: the sketch's own ink, which Text color never changes (Bell v183)
@@ -1083,7 +1117,7 @@ function renderTree(undoHtml) {
     return box;
   }
   const seedOf = id => { let h = 7; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 100003; return h / 100003 * Math.PI * 2; };
-  hint.innerHTML = `<span class="zoom"><button id="addIsleBtn" class="wide sign" aria-label="Add an island">${IC.isleAdd}</button><button id="delIsleBtn" class="wide sign" aria-label="${delMode ? 'Done deleting' : 'Delete an island'}">${delMode ? IC.isleOk : IC.isleDel}</button><button id="barUndoBtn" class="wide sign" aria-label="Undo"${delMode ? '' : ' style="display:none"'}>${IC.isleUndo}</button><button id="houseBackBtn" class="wide sign hb" aria-label="Back"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button id="houseOkBtn" class="wide sign hb" aria-label="Done"><svg class="ic" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11"/></svg></button><button id="growOneBtn" class="wide sign" aria-label="Expand this island one layer" style="display:none">${IC.expandOne}</button><button id="foldOneBtn" class="wide sign" aria-label="Fold this island one layer" style="display:none">${IC.foldOne}</button><button id="growBtn" class="wide sign" aria-label="Expand">${IC.expand}</button><button id="parcelUpBtn" class="wide sign" aria-label="Back to the bigger parcel" style="display:none">${IC.isleOk.replace('<path d="M8.3 12.2l2.6 2.6 4.8-5.2"/>', '<path d="M12 15.6V8.6M8.8 11.8L12 8.6l3.2 3.2"/>')}</button><button id="zoomAllBtn" class="wide sign" aria-label="Zoom out to all islands">${IC.zoomAll}</button><button id="backupBtn" class="wide sign" aria-label="Backup">${IC.isleOk.replace('<path d="M8.3 12.2l2.6 2.6 4.8-5.2"/>', '<path d="M12 8.2v5.6M9.4 11.4L12 14l2.6-2.6M8.8 15.9h6.4"/>')}</button></span>`; // set first, so the sea is measured at its real height
+  hint.innerHTML = `<span class="zoom"><button id="addIsleBtn" class="wide sign" aria-label="Add an island">${IC.isleAdd}</button><button id="delIsleBtn" class="wide sign" aria-label="${delMode ? 'Done deleting' : 'Delete an island'}">${delMode ? IC.isleOk : IC.isleDel}</button><button id="barUndoBtn" class="wide sign" aria-label="Undo"${delMode ? '' : ' style="display:none"'}>${IC.isleUndo}</button><button id="houseBackBtn" class="wide sign hb" aria-label="Back"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button id="houseOkBtn" class="wide sign hb" aria-label="Done"><svg class="ic" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11"/></svg></button><button id="growOneBtn" class="wide sign" aria-label="Expand this island one layer" style="display:none">${IC.expandOne}</button><button id="foldOneBtn" class="wide sign" aria-label="Fold this island one layer" style="display:none">${IC.foldOne}</button><button id="growBtn" class="wide sign" aria-label="Expand">${IC.expand}</button><button id="parcelUpBtn" class="wide sign" aria-label="Back to the bigger parcel" style="display:none">${IC.isleOk.replace('<path d="M8.3 12.2l2.6 2.6 4.8-5.2"/>', '<path d="M12 15.6V8.6M8.8 11.8L12 8.6l3.2 3.2"/>')}</button><button id="zoomAllBtn" class="wide sign" aria-label="Zoom out to all islands">${IC.zoomAll}</button><button id="backupBtn" class="wide sign" aria-label="Backup">${IC.isleOk.replace('<path d="M8.3 12.2l2.6 2.6 4.8-5.2"/>', '<path d="M12 8.2v5.6M9.4 11.4L12 14l2.6-2.6M8.8 15.9h6.4"/>')}</button><button id="settingsBtn" class="wide sign" aria-label="Settings">${IC.isleOk.replace('<path d="M8.3 12.2l2.6 2.6 4.8-5.2"/>', '<circle cx="12" cy="12" r="1.7"/><path d="M12 7.4v1.4M12 15.2v1.4M7.4 12h1.4M15.2 12h1.4M8.75 8.75l1 1M14.25 14.25l1 1M8.75 15.25l1-1M14.25 9.75l1-1"/>')}</button></span>`; // set first, so the sea is measured at its real height
   // the islands are placed for the screen's shape as first seen, so they never move when the hint line or buttons change
   // the map's height (only turning the phone places them again)
   const cw = stage.clientWidth || 360, ch = stage.clientHeight || 640;
@@ -1166,7 +1200,7 @@ function renderTree(undoHtml) {
     // every island always has its fully grown outline, so its size never changes as it grows
     const fa = i.a, fb = i.b; // the island as shown at its level (Bell v202: islands close together, each grows when its houses do)
     isleAt[i.id] = { x: cx, y: cy, rx: fa + 6, ry: fb + 6, frx: Math.max(fa, room[k].ew) + 6, fry: Math.max(fb, room[k].eh) + 6 }; // frx, fry: fully grown, so up close it fills the screen at its full size (Bell v210)
-    { const d = blob(cx, cy, fa + 1, fb + 1, i.seed); sea += `<g data-isle="${i.id}"><path class="sand" d="${d}"/><path class="farm" style="fill:url(#farm${farmOf(i.id)})" d="${d}"/></g>`; } // farmland patterns on the land (Bell v241)
+    { const d = blob(cx, cy, fa + 1, fb + 1, i.seed); const ic = isleCol(i.id); sea += `<g data-isle="${i.id}"><path class="sand"${ic ? ` style="fill:${ic}"` : ''} d="${d}"/><path class="farm" style="fill:url(#farm${farmOf(i.id)})" d="${d}"/></g>`; } // farmland patterns on the land (Bell v241)
     if (delMode && !isleFocus) { const r = 9 / fitZ, /* the same size on every island (Bell v196), small enough to stay on screen (v198) */ mx = cx + fa * .84 + r * .3, my = cy + fb * .84 + r * .3, /* bottom right, just past the shore (Bell v197) */ f = n => n.toFixed(1);
       delMarks += minusBtn(mx, my, r, `data-del="${i.id}"`, delArmId === i.id, 'Delete this island'); }
     // (an island's own one-layer expand lives in the bottom bar now: #growOneBtn, Bell v190)
@@ -1182,7 +1216,8 @@ function renderTree(undoHtml) {
     let d = `M${f(m(P[N - 1], P[0]))}`; P.forEach((q, i) => { d += `Q${f(q)} ${f(m(q, P[(i + 1) % N]))}`; }); return d + 'Z'; };
   const lotSeed = str => { let h = 7; for (const ch of str) h = (h * 31 + ch.charCodeAt(0)) % 9973; return h / 97; };
   const land = parcels.map(p => { const k = p.path ? p.path.join(' ') : String(p.x), d = lotShape(p, lotSeed(k));
-      return `<path class="parcel${p.path && p.path.length > 2 ? ' pd' + Math.min(6, p.path.length - 1) : ''}"${p.path ? ` data-ppath="${k}"` : ''} d="${d}"/><path class="farm"${p.path ? ` data-fpath="${k}"` : ''} style="fill:url(#farm${p.path ? 'D' + farmFor(p.path) : farmOf(k)})" d="${d}"/>`; }).join('')
+      const pc = p.path && isleCol(p.path[0], p.path.length - 1);
+      return `<path class="parcel${p.path && p.path.length > 2 ? ' pd' + Math.min(6, p.path.length - 1) : ''}"${p.path ? ` data-ppath="${k}"` : ''}${pc ? ` style="fill:${pc}"` : ''} d="${d}"/><path class="farm"${p.path ? ` data-fpath="${k}"` : ''} style="fill:url(#farm${p.path ? 'D' + farmFor(p.path) : farmOf(k)})" d="${d}"/>`; }).join('')
     + houses.map(hs => hs.name ? `<text class="house-name" data-path="${hs.path.join(' ')}" x="${(hs.x + hs.w / 2).toFixed(1)}" y="${(hs.y + hs.h + 14).toFixed(1)}" text-anchor="middle">${esc(clip(hs.name, hs.w))}</text>` : '').join('')
     + signs.map(g => `<text class="${g.lot ? 'house-name' : 'isle-name'}" data-path="${g.path.join(' ')}" x="${g.x.toFixed(1)}" y="${g.y.toFixed(1)}" text-anchor="middle">${g.lot ? g.lines.map((ln, k) => `<tspan x="${g.x.toFixed(1)}" dy="${k ? LH : 0}">${esc(ln)}</tspan>`).join('') : esc(clip(g.t, 240))}</text>`).join('');
   // A house's outline (Bell v194): sharp corners, each side bowing gently outward with a small wobble, never inward.
@@ -1319,7 +1354,8 @@ function renderTree(undoHtml) {
   // Grow opens the next layer of branches everywhere; Collapse closes the outermost open layer.
   syncCollapse();
   $('#zoomAllBtn').onclick = () => showWholeMap();
-  $('#backupBtn').onclick = () => { const b = $('#bkSheet'); b.hidden = !b.hidden; };
+  $('#backupBtn').onclick = () => { const b = $('#bkSheet'); b.hidden = !b.hidden; $('#setSheet').hidden = $('#colSheet').hidden = true; };
+  $('#settingsBtn').onclick = () => { const b = $('#setSheet'); b.hidden = !b.hidden; $('#bkSheet').hidden = $('#colSheet').hidden = true; syncSet(); };
   $('#parcelUpBtn').onclick = () => { try { if (parcelFocus && !houseFocus) parcelUp(); } catch (err) { showErr(err.message, err); } }; // one layer back out: the bigger parcel, or the island (Bell v245)
   $('#foldOneBtn').onclick = () => { const id = isleFocus; if (!id || !db.n[id] || !growInfo) return; for (const k in parcelOpen) if (k.split(' ')[0] === id) delete parcelOpen[k]; const now = Math.min(growInfo.layerOf(id), growInfo.depthOf(id)); if (now <= 1) return; // the tapped island folds one layer (Bell v191)
     if (treeLayers > now - 1) { const keep = treeLayers; ideasNow().forEach(o => { if (o !== id) isleLayers[o] = Math.max(isleLayers[o] || 0, keep); }); treeLayers = 1; }
@@ -1489,7 +1525,7 @@ function growPlace(isle) { // where Grow would go next on this island: 'layer' (
   return filled(db.n[at]) ? at : null; // an empty house can't grow a layer under it (Bell)
 }
 let zoomedIn = false;
-function syncZoomAll(z) { if (z !== undefined) zoomedIn = z; const za = document.getElementById('zoomAllBtn'); if (za) za.style.display = zoomedIn || isleFocus || parcelFocus || houseFocus ? '' : 'none'; const bk = document.getElementById('backupBtn'); if (bk) bk.style.display = zoomedIn || isleFocus || parcelFocus || houseFocus || delMode ? 'none' : ''; const pu = document.getElementById('parcelUpBtn'); if (pu) pu.style.display = parcelFocus && !houseFocus ? '' : 'none'; } // shows together with the island's buttons, in one step (Bell v191: the bar flashed)
+function syncZoomAll(z) { if (z !== undefined) zoomedIn = z; const za = document.getElementById('zoomAllBtn'); if (za) za.style.display = zoomedIn || isleFocus || parcelFocus || houseFocus ? '' : 'none'; const bk = document.getElementById('backupBtn'), st = document.getElementById('settingsBtn'), offTop = zoomedIn || isleFocus || parcelFocus || houseFocus || delMode; if (bk) bk.style.display = offTop ? 'none' : ''; if (st) st.style.display = offTop ? 'none' : ''; const pu = document.getElementById('parcelUpBtn'); if (pu) pu.style.display = parcelFocus && !houseFocus ? '' : 'none'; } // shows together with the island's buttons, in one step (Bell v191: the bar flashed)
 function syncGrowMarks() { syncZoomAll(); // the bar's one-layer expand shows only while an island is up close (not inside a lot or a house) (Bell v190)
   const b = $('#growOneBtn'); if (!b) return;
   const id = isleFocus && !parcelFocus && !houseFocus && db.n[isleFocus] ? isleFocus : null;
