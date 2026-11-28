@@ -227,7 +227,7 @@ body.sketchmode, body.sketchmode * { user-select: none !important; -webkit-user-
 #hint .zoom button.wide.sign.on { background: none; color: #000; }
 #hint .zoom button.wide.sign:disabled { opacity: 1; color: rgba(0,0,0,.3); }
 #hint .zoom button.wide + button:not(.wide) { margin-left: 8px; }
-#hint .ic.isl { width: 34px; height: 34px; stroke-linecap: round; stroke-linejoin: round; }
+#hint .ic.isl { width: 34px; height: 34px; stroke-linecap: round; stroke-linejoin: round; } #hint .ic.isl .kb { fill: #7FB3DE; stroke: none; } #hint .ic.isl mask .kg, #hint .ic.isl mask .kg * { fill: none; stroke: #000; } #hint button:disabled .ic.isl .kb { opacity: .45; } /* cut-out sky buttons (Bell 2026-11-28) */
 #hint .zoom .hb, #hint.house #addIsleBtn, #hint.house #delIsleBtn, #hint.house #growBtn, #hint.house #zoomAllBtn, #hint.house #parcelUpBtn { display: none !important; }
 #hint.house .zoom .hb { display: inline-grid; place-items: center; }
 #hint.house { display: none; } /* canvas mode: no bottom bar at all (Bell); a tap on the black goes back */
@@ -740,6 +740,16 @@ function countAll(id) { const n = db.n[id]; return n ? n.kids.reduce((s, k) => s
 
 /* ---------- navigation and rendering ---------- */
 const bar = $('#bar'), stage = $('#stage'), hint = $('#hint');
+// bottom buttons (Bell 2026-11-28): a solid sky-blue island shape, its symbol cut out so the sea shows through, no outline
+let knockN = 0;
+const knockIcons = () => hint.querySelectorAll('svg.ic.isl:not([data-kn])').forEach(svg => {
+  const NS = 'http://www.w3.org/2000/svg', ps = [...svg.children], outline = ps[0]; if (!outline || outline.tagName !== 'path') return;
+  svg.setAttribute('data-kn', '1'); const id = 'kn' + (knockN++), m = document.createElementNS(NS, 'mask');
+  m.id = id; m.setAttribute('maskUnits', 'userSpaceOnUse'); m.innerHTML = '<rect x="-2" y="-2" width="28" height="28" fill="#fff"/>';
+  ps.slice(1).forEach(g => { const c = g.cloneNode(true); c.setAttribute('class', 'kg'); m.appendChild(c); g.remove(); });
+  svg.insertBefore(m, svg.firstChild); outline.setAttribute('mask', `url(#${id})`); outline.setAttribute('class', 'kb');
+});
+new MutationObserver(knockIcons).observe(hint, { childList: true, subtree: true });
 // any error shows in the hint bar with where it happened, so it can be reported
 const where = e => { const m = String(e && e.stack || '').match(/(\d+):(\d+)\)?\s*$/m) || String(e && e.stack || '').match(/:(\d+):(\d+)/); return m ? ' (line ' + m[1] + ')' : ''; };
 const showErr = (msg, e) => { const sp = hint && hint.querySelector('span'); if (sp) sp.textContent = 'Something went wrong: ' + msg + where(e); };
